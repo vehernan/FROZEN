@@ -1,4 +1,5 @@
 package main
+
 import (
     "fmt"
     "net"
@@ -6,14 +7,17 @@ import (
     "bufio"
     "strings"
 )
+
 type Request        struct {
     Person          *User
     RoomName        string
 }
+
 type Message        struct {
     Username        string
     Text            string
 }
+
 type ChatRoom       struct {
     Name            string
     Users           map[string]User
@@ -21,6 +25,7 @@ type ChatRoom       struct {
     Leave           chan User
     Input           chan Message
 }
+
 type User           struct {
     Username        string
     Nickname        string
@@ -28,6 +33,7 @@ type User           struct {
     Output chan     Message
     CurrentChatRoom ChatRoom
 }
+
 type ChatServer     struct {
     AddUsr          chan User
     AddNick         chan User
@@ -40,6 +46,7 @@ type ChatServer     struct {
     UsrJoin         chan Request
     UsrLeave        chan Request
 }
+
 func handleConnection(conn net.Conn, server *ChatServer) {
     var user User
     // Output a message to the new connected user
@@ -299,13 +306,13 @@ func (server *ChatServer) start() {
         }
     }
 }
+
 func main() {
     ln, err := net.Listen("tcp", ":9000")
     defer ln.Close()
     if err != nil {
         fmt.Println("Error")
     }
-    // Creating a new chat server
     server := &ChatServer{
         AddUsr: make(chan User),
         AddNick: make(chan User),
@@ -317,13 +324,12 @@ func main() {
         Delete: make(chan ChatRoom),
         UsrJoin: make(chan Request),
         UsrLeave: make(chan Request),
-    }
-    // Starting the server
+	}
+	
+	go server.start()
     go server.start()
     go server.start()
     go server.start()
-    go server.start()
-    // For each new connection received, I call the function handleConnection
     for {
         conn, err := ln.Accept()
         if err != nil {
