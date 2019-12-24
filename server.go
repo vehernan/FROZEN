@@ -1,12 +1,20 @@
-package main
+package main //the executable
 
+// impoting packages "similar to libraries"
 import (
-    "fmt"
-    "net"
-    "io"
-    "bufio"
-    "strings"
+    "fmt" //for print fimilar to printf (stdout)
+    "net" //for server!
+    "io" // implements i/o utility functions 
+    "bufio" // lets me read/write
+    "strings" //use str
 )
+
+/*
+** structs that contain all my data im trying pass
+** structs are helpful to contain multiple data.
+** (map) types are reference types, similar to pointers
+** (chan) = channels, help us "connect" different concurrent parts of our code
+*/
 
 type Request        struct {
     Person          *User
@@ -47,6 +55,7 @@ type ChatServer     struct {
     UsrLeave        chan Request
 }
 
+/**/
 func handleConnection(conn net.Conn, server *ChatServer) {
     var user User
     // Output a message to the new connected user
@@ -108,10 +117,10 @@ func handleConnection(conn net.Conn, server *ChatServer) {
     // Joining the room
     server.UsrJoin <- request
     // Create a defer to leave the room after function returns
-    defer func() {
+    defer func() { //defers the execution of a function until the surrounding function returns.
         server.UsrLeave <- request
     }()
-    
+    /* all the commands needed mandatory part*/
     go func() {
         io.WriteString(conn, "You joined " + room_name + "\n")
         for scan.Scan() {
@@ -263,6 +272,8 @@ func (room *ChatRoom) start() {
     }
 }
 
+//logic needed for process
+
 func (server *ChatServer) start() {
     for {
         select {
@@ -308,12 +319,12 @@ func (server *ChatServer) start() {
 }
 
 func main() {
-    ln, err := net.Listen("tcp", ":9000")
+    ln, err := net.Listen("tcp", ":9000") //error hand, listening to connection
     defer ln.Close()
     if err != nil {
         fmt.Println("Error")
     }
-    server := &ChatServer{
+    server := &ChatServer{ //intitializing it
         AddUsr: make(chan User),
         AddNick: make(chan User),
         RemoveNick: make(chan User),
